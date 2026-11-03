@@ -1,12 +1,725 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DV 2</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Beyond the Ride | Australian Cycling Trails</title>
+
+  <!-- Vega and Vega-Lite libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@7"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #F5F7F6;
+      margin: 0;
+      padding: 0;
+      color: #26352F;
+      line-height: 1.6;
+    }
+
+    header {
+      text-align: center;
+      padding: 65px 20px 45px;
+    }
+
+    h1 {
+      font-size: 42px;
+      color: #245B45;
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+
+    header p {
+      font-size: 17px;
+      color: #68766D;
+      margin: 0;
+    }
+
+    main {
+      max-width: 1150px;
+      margin: auto;
+      padding: 20px 25px 70px;
+    }
+
+    .section {
+      margin-bottom: 65px;
+    }
+
+    .section-number {
+      color: #D97942;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    h2 {
+      color: #245B45;
+      font-size: 28px;
+      margin: 5px 0 10px;
+    }
+
+    h3 {
+      color: #245B45;
+      font-size: 21px;
+      margin: 0 0 10px;
+    }
+
+    .description {
+      color: #68766D;
+      font-size: 15px;
+      max-width: 750px;
+      margin-bottom: 22px;
+    }
+
+    .chart-card {
+      background: #FFFFFF;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(30, 60, 45, 0.04);
+      overflow: hidden;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .chart {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .insight-box {
+      background: #EAF1F7;
+      border-left: 4px solid #D97942;
+      padding: 16px;
+      margin: 15px 0;
+      border-radius: 0 9px 9px 0;
+      color: #26352F;
+    }
+
+    .insight-box strong {
+      display: block;
+      color: #174A70;
+      margin-bottom: 5px;
+    }
+
+    .insight-box p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .map-note {
+      color: #68766D;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    /* Side-by-side chart layout */
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 25px;
+      align-items: stretch;
+    }
+
+    .map-column {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .map-column h3 {
+      min-height: 64px;
+      margin: 0 0 10px;
+    }
+
+    .map-column .column-description {
+      color: #68766D;
+      font-size: 14px;
+      min-height: 54px;
+      margin: 0 0 15px;
+    }
+
+    .map-column .chart-card {
+      padding: 15px;
+      height: 510px;
+      min-height: 510px;
+      flex: 0 0 510px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .map-column .chart {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .map-column .insight-box {
+      margin-top: 0;
+    }
+
+    /* Chart 7: Radial bar chart */
+
+    .radial-chart-card {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 540px;
+      width: 100%;
+    }
+
+    #chart7 {
+      width: 100%;
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    #chart7 .vega-embed {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    #chart7 svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Chart 8: Seven age-group line chart */
+
+    .age-chart-card {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 550px;
+      width: 100%;
+    }
+
+    #chart8 {
+      width: 100%;
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    #chart8 .vega-embed {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    #chart8 svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: #68766D;
+      font-size: 13px;
+      border-top: 1px solid #DFE7E1;
+    }
+
+    /* Responsive layout */
+
+    @media (max-width: 1100px) {
+      .map-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .map-column h3 {
+        min-height: auto;
+      }
+
+      .map-column .column-description {
+        min-height: auto;
+      }
+
+      .map-column .chart-card {
+        height: auto;
+        min-height: 0;
+        flex: initial;
+      }
+    }
+
+    @media (max-width: 650px) {
+      header {
+        padding: 40px 15px 30px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      main {
+        padding: 15px;
+      }
+
+      .chart-card {
+        padding: 12px;
+      }
+
+      h2 {
+        font-size: 23px;
+      }
+
+      h3 {
+        font-size: 19px;
+      }
+
+      .radial-chart-card,
+      .age-chart-card {
+        min-height: 0;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Heading 1</h1>
-    <p1>My first paragraph</p1>
+
+  <header>
+    <h1>Beyond the Ride</h1>
+    <p>Exploring Australia's Recreational Cycling Trails</p>
+  </header>
+
+  <main>
+
+    <!-- MAP 1: PROPORTIONAL SYMBOL MAP -->
+
+    <section class="section">
+
+      <span class="section-number">01 — TRAIL DISTRIBUTION</span>
+
+      <h2>Where are Australia's recreational cycling trails located?</h2>
+
+      <p class="description">
+        Explore the geographical distribution of recreational
+        cycling trails across Australia and compare their
+        lengths across different states.
+      </p>
+
+      <div class="chart-card">
+        <div id="map1" class="chart"></div>
+      </div>
+
+      <div class="insight-box">
+        <strong>Queensland features Australia's longest individual trail.</strong>
+        <p>
+          The Brisbane Valley Rail Trail stretches 161 km,
+          followed by Victoria's Murray to Mountains Rail Trail
+          at 137 km.
+        </p>
+      </div>
+
+      <p class="map-note">
+        Note: Circle size represents trail length. Locations are
+        approximate representative points, not actual trail routes.
+      </p>
+
+    </section>
+
+
+    <!-- MAP 2: CHOROPLETH MAP -->
+
+    <section class="section">
+
+      <span class="section-number">02 — STATE DISTRIBUTION</span>
+
+      <h2>Which states have the greatest cycling trail length?</h2>
+
+      <p class="description">
+        Comparing the total length of open rail trails across
+        Australian states reveals differences in the development
+        of recreational cycling infrastructure.
+      </p>
+
+      <div class="chart-card">
+        <div id="map2" class="chart"></div>
+      </div>
+
+      <div class="insight-box">
+        <strong>Victoria has the largest recorded rail trail network.</strong>
+        <p>
+          Victoria records 1,144 km of open rail trails,
+          followed by Western Australia with 553 km
+          and Queensland with 356 km.
+        </p>
+      </div>
+
+      <p class="map-note">
+        Note: Colour represents total open rail trail length in kilometres.
+        The state-level dataset covers seven states and territories and
+        uses 2022 data.
+      </p>
+
+    </section>
+
+
+    <!-- SECTION 3: EXPLORING TRAIL NETWORKS -->
+
+    <section class="section">
+
+      <span class="section-number">03 — EXPLORING TRAIL NETWORKS</span>
+
+      <h2>How does Australia's cycling trail network vary?</h2>
+
+      <p class="description">
+        Explore differences in trail availability and trail types
+        across Australia's states and territories.
+      </p>
+
+      <div class="map-grid">
+
+        <!-- MAP 3: TILE GRID MAP -->
+
+        <div class="map-column">
+
+          <h3>How many open trails does each state have?</h3>
+
+          <p class="column-description">
+            Each tile represents an Australian state. Darker blue
+            indicates a greater number of open recreational trails.
+          </p>
+
+          <div class="chart-card">
+            <div id="map3" class="chart"></div>
+          </div>
+
+          <div class="insight-box">
+            <strong>Victoria has the largest trail network.</strong>
+            <p>
+              It records 25 open trails, compared with just 2
+              in the Northern Territory.
+            </p>
+          </div>
+
+          <p class="map-note">
+            Note: This is an abstract tile grid rather than a
+            geographically accurate map. Tile positions are
+            arranged approximately according to Australia's layout.
+            The dataset covers seven states and territories.
+          </p>
+
+        </div>
+
+
+        <!-- MAP 4: DOT DISTRIBUTION MAP -->
+
+        <div class="map-column">
+
+          <h3>Where are cycling trails concentrated?</h3>
+
+          <p class="column-description">
+            Explore the geographical distribution of recreational
+            rail trails, shared paths and other recreational trails
+            across Australia.
+          </p>
+
+          <div class="chart-card">
+            <div id="map4" class="chart"></div>
+          </div>
+
+          <div class="insight-box">
+            <strong>Trail locations are spread across several states.</strong>
+            <p>
+              The dots reveal where recorded trail locations
+              are situated and where multiple trails occur
+              relatively close together.
+            </p>
+          </div>
+
+          <p class="map-note">
+            Note: Each dot represents one recorded trail using
+            its approximate representative coordinates. Dot colour
+            identifies the recorded trail type. Locations do not
+            represent actual trail routes.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SECTION 4: COMPARING TRAIL CHARACTERISTICS -->
+
+    <section class="section">
+
+      <span class="section-number">04 — COMPARING TRAIL CHARACTERISTICS</span>
+
+      <h2>What makes up Australia's cycling trail network?</h2>
+
+      <p class="description">
+        Compare the lengths of individual trails and explore
+        how different trail categories are represented across states.
+      </p>
+
+      <div class="map-grid">
+
+        <!-- CHART 5: TREEMAP -->
+
+        <div class="map-column">
+
+          <h3>How do individual trail lengths compare?</h3>
+
+          <p class="column-description">
+            Each rectangle represents a recorded trail.
+            Larger areas indicate longer trails, grouped by state.
+          </p>
+
+          <div class="chart-card">
+            <div id="chart5" class="chart"></div>
+          </div>
+
+          <div class="insight-box">
+            <strong>The Brisbane Valley Rail Trail is the longest recorded trail.</strong>
+            <p>
+              At 161 km, it is longer than every other individual trail
+              in the 20-trail dataset.
+            </p>
+          </div>
+
+          <p class="map-note">
+            Note: Rectangle area represents trail length in kilometres.
+            Colours distinguish the states. Hover over a rectangle for details.
+          </p>
+
+        </div>
+
+
+        <!-- CHART 6: TRAIL TYPE HEATMAP -->
+
+        <div class="map-column">
+
+          <h3>How do trail types vary between states?</h3>
+
+          <p class="column-description">
+            Compare the number of recorded trails in each state
+            according to their recorded category.
+          </p>
+
+          <div class="chart-card">
+            <div id="chart6" class="chart"></div>
+          </div>
+
+          <div class="insight-box">
+            <strong>Victoria has the highest number of recorded recreational rail trails.</strong>
+            <p>
+              The recorded dataset contains more recreational rail trails
+              in Victoria than in any other state.
+            </p>
+          </div>
+
+          <p class="map-note">
+            Note: Cell colour represents the number of recorded trails.
+            Blank cells indicate no records for that category in the dataset.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SECTION 5: AGE AND CYCLING PARTICIPATION -->
+
+    <section class="section">
+
+      <span class="section-number">05 — AGE AND CYCLING PARTICIPATION</span>
+
+      <h2>Which age groups participate in cycling?</h2>
+
+      <p class="description">
+        Explore the distribution of estimated adult cycling participants
+        across age groups in Australia during the 2025–26 survey period.
+      </p>
+
+      <div class="chart-card radial-chart-card">
+        <div id="chart7" class="chart"></div>
+      </div>
+
+      <div class="insight-box">
+        <strong>Adults aged 55–64 have the highest estimated participation.</strong>
+        <p>
+          This age group accounts for approximately 375,000 estimated
+          cycling participants, while the 45–54 age group is close behind.
+        </p>
+      </div>
+
+      <p class="map-note">
+        Source: AusPlay Sport Data Tables, July 2025–June 2026.
+        Note: These figures represent estimated adult cycling participation
+        generally, not specifically recreational trail use.
+      </p>
+
+    </section>
+
+
+    <!-- SECTION 6: AGE-GROUP PARTICIPATION TRENDS -->
+
+    <section class="section">
+
+      <span class="section-number">06 — AGE-GROUP PARTICIPATION TRENDS</span>
+
+      <h2>How Has Cycling Participation Changed Across Age Groups?</h2>
+
+      <p class="description">
+        Compare adult cycling participation rates across seven age groups
+        over three consecutive AusPlay survey periods. Discover how
+        participation patterns differ between generations.
+      </p>
+
+      <div class="chart-card age-chart-card">
+        <div id="chart8" class="chart"></div>
+      </div>
+
+      <div class="insight-box">
+        <strong>Older age groups show a different participation pattern.</strong>
+        <p>
+          Adults aged 55–64 increased from 11.73% to 12.10%,
+          while those aged 65 and above increased from 5.53%
+          to 5.77% across the three survey periods.
+          In contrast, participation declined across several
+          younger and middle-aged groups.
+        </p>
+      </div>
+
+      <p class="map-note">
+        Source: AusPlay By Sport Data Tables, 2023–24, 2024–25
+        and 2025–26. Note: Figures represent estimated adult cycling
+        participation generally, not specifically recreational trail use.
+        Survey methodology changed in July 2023; this chart uses the
+        post-change survey periods.
+      </p>
+
+    </section>
+
+  </main>
+
+
+  <!-- Website footer -->
+
+  <footer>
+    Beyond the Ride | FIT3179 Data Visualisation 2
+    <br>
+    Monash University | 2026
+  </footer>
+
+
+  <!-- Vega-Lite visualisations -->
+
+  <script>
+
+    // Map 1: Proportional Symbol Map
+
+    vegaEmbed(
+      "#map1",
+      "maps/map1-trail-locations.json",
+      {
+        actions: false,
+        renderer: "svg"
+      }
+    ).catch(console.error);
+
+
+    // Map 2: State Choropleth Map
+
+    vegaEmbed(
+      "#map2",
+      "maps/map2-state-choropleth.json",
+      {
+        actions: false,
+        renderer: "svg"
+      }
+    ).catch(console.error);
+
+
+    // Map 3: State Tile Grid Map
+
+    vegaEmbed(
+      "#map3",
+      "maps/map3-state-tile-grid.json",
+      {
+        actions: false,
+        renderer: "svg"
+      }
+    ).catch(console.error);
+
+
+    // Map 4: Dot Distribution Map
+
+    vegaEmbed(
+      "#map4",
+      "maps/map4-dot-density.json",
+      {
+        actions: false,
+        renderer: "svg"
+      }
+    ).catch(console.error);
+
+
+    // Chart 5: Trail Length Treemap
+
+    vegaEmbed(
+      "#chart5",
+      "maps/chart5-trail-treemap.json",
+      {
+        actions: false,
+        renderer: "svg"
+      }
+    ).catch(console.error);
+
+
+    // Chart 6: Trail Type Heatmap
+
+    vegaEmbed(
+      "#chart6",
+      "maps/chart6-trail-type-heatmap.json",
+      {
+        actions: false,
+        renderer: "svg"
+      }
+    ).catch(console.error);
+
+
+    // Chart 7: Adult Cycling Participation by Age Group
+
+    vegaEmbed(
+      "#chart7",
+      "maps/chart7-radial-bar.json",
+      {
+        actions: false,
+        renderer: "svg"
+      }
+    ).catch(console.error);
+
+
+    // Chart 8: Cycling Participation by Seven Age Groups
+
+    vegaEmbed(
+      "#chart8",
+      "maps/chart8-age-group-trends-improved.json",
+      {
+        actions: false,
+        renderer: "svg"
+      }
+    ).catch(console.error);
+
+  </script>
+
 </body>
 </html>
